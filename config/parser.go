@@ -59,8 +59,9 @@ type PreviewConfig struct {
 }
 
 type ColumnConfig struct {
-	Width  *int  `yaml:"width,omitempty"  validate:"omitempty,gt=0"`
-	Hidden *bool `yaml:"hidden,omitempty"`
+	Width  *int    `yaml:"width,omitempty"  validate:"omitempty,gt=0"`
+	Hidden *bool   `yaml:"hidden,omitempty"`
+	Title  *string `yaml:"title,omitempty"`
 }
 
 type PrsLayoutConfig struct {
@@ -152,12 +153,12 @@ func EmojiIconSet() *IconsConfig {
 		SuccessIcon:   emoji.Emojize(":check_mark_button:"),
 		SearchIcon:    emoji.Emojize(":mag:"),
 		UpdatedAtIcon: emoji.Emojize(":clock10:"),
-		StateIcon:     emoji.Emojize(":twisted_rightwards_arrows:"),
-		RepoIcon:      emoji.Emojize(":house:"),
+		StateIcon:     "⎇",
+		RepoIcon:      "⌂",
 		ReviewIcon:    emoji.Emojize(":postbox:"),
 		CiIcon:        emoji.Emojize(":safety_vest:"),
-		DiffIcon:      emoji.Emojize(":card_index_dividers:"),
-		MergeIntoIcon: emoji.Emojize(":arrow_left:"),
+		DiffIcon:      "±",
+		MergeIntoIcon: "←",
 	}
 	return &icons
 }
@@ -276,23 +277,35 @@ func (parser ConfigParser) getDefaultConfig() Config {
 					UpdatedAt: ColumnConfig{
 						Width: utils.IntPtr(lipgloss.Width("2mo ago")),
 					},
+					State: ColumnConfig{},
 					Repo: ColumnConfig{
+						Title: utils.StringPtr(""),
 						Width: utils.IntPtr(15),
 					},
+					Title: ColumnConfig{
+						Title: utils.StringPtr("Title"),
+					},
 					Author: ColumnConfig{
+						Title: utils.StringPtr("Author"),
 						Width: utils.IntPtr(15),
 					},
 					Assignees: ColumnConfig{
+						Title:  utils.StringPtr("Assignees"),
 						Width:  utils.IntPtr(20),
 						Hidden: utils.BoolPtr(true),
 					},
 					Base: ColumnConfig{
+						Title:  utils.StringPtr("Base"),
 						Width:  utils.IntPtr(15),
 						Hidden: utils.BoolPtr(true),
 					},
 					Lines: ColumnConfig{
 						Width: utils.IntPtr(lipgloss.Width("123450 / -123450")),
 					},
+					ReviewStatus: ColumnConfig{
+						Width: utils.IntPtr(4),
+					},
+					Ci: ColumnConfig{},
 				},
 				Issues: IssuesLayoutConfig{
 					UpdatedAt: ColumnConfig{

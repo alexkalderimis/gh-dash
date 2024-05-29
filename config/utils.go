@@ -43,13 +43,21 @@ func (cfg IssuesSectionConfig) ToSectionConfig() SectionConfig {
 	}
 }
 
-func MergeColumnConfigs(defaultCfg, sectionCfg ColumnConfig) ColumnConfig {
-	colCfg := defaultCfg
-	if sectionCfg.Width != nil {
-		colCfg.Width = sectionCfg.Width
+// last defined value wins
+func MergeColumnConfigs(configs ...ColumnConfig) ColumnConfig {
+	colCfg := ColumnConfig{}
+
+	for _, cfg := range configs {
+		if cfg.Width != nil {
+			colCfg.Width = cfg.Width
+		}
+		if cfg.Hidden != nil {
+			colCfg.Hidden = cfg.Hidden
+		}
+		if cfg.Title != nil {
+			colCfg.Title = cfg.Title
+		}
 	}
-	if sectionCfg.Hidden != nil {
-		colCfg.Hidden = sectionCfg.Hidden
-	}
+
 	return colCfg
 }

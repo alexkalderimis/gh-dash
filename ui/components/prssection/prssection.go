@@ -179,6 +179,18 @@ func (m Model) Update(msg tea.Msg) (section.Section, tea.Cmd) {
 	return &m, tea.Batch(cmd, searchCmd, promptCmd)
 }
 
+func fromColumnConfig(config config.ColumnConfig) table.Column {
+	return withColumnConfig(table.Column{}, config)
+}
+
+func withColumnConfig(column table.Column, config config.ColumnConfig) table.Column {
+	column.Title = *config.Title
+	column.Width = config.Width
+	column.Hidden = config.Hidden
+
+	return column
+}
+
 func GetSectionColumns(
 	cfg config.PrsSectionConfig,
 	ctx *context.ProgramContext,
@@ -187,10 +199,15 @@ func GetSectionColumns(
 	sLayout := cfg.Layout
 
 	updatedAtLayout := config.MergeColumnConfigs(
+		config.ColumnConfig{Title: &ctx.Theme.Icons.UpdatedAtIcon},
 		dLayout.UpdatedAt,
 		sLayout.UpdatedAt,
 	)
-	repoLayout := config.MergeColumnConfigs(dLayout.Repo, sLayout.Repo)
+	repoLayout := config.MergeColumnConfigs(
+		config.ColumnConfig{Title: &ctx.Theme.Icons.RepoIcon},
+		dLayout.Repo,
+		sLayout.Repo,
+	)
 	titleLayout := config.MergeColumnConfigs(dLayout.Title, sLayout.Title)
 	authorLayout := config.MergeColumnConfigs(dLayout.Author, sLayout.Author)
 	assigneesLayout := config.MergeColumnConfigs(
@@ -199,64 +216,37 @@ func GetSectionColumns(
 	)
 	baseLayout := config.MergeColumnConfigs(dLayout.Base, sLayout.Base)
 	reviewStatusLayout := config.MergeColumnConfigs(
+		config.ColumnConfig{Title: &ctx.Theme.Icons.ReviewIcon},
 		dLayout.ReviewStatus,
 		sLayout.ReviewStatus,
 	)
-	stateLayout := config.MergeColumnConfigs(dLayout.State, sLayout.State)
-	ciLayout := config.MergeColumnConfigs(dLayout.Ci, sLayout.Ci)
-	linesLayout := config.MergeColumnConfigs(dLayout.Lines, sLayout.Lines)
+	stateLayout := config.MergeColumnConfigs(
+		config.ColumnConfig{Title: &ctx.Theme.Icons.StateIcon},
+		dLayout.State,
+		sLayout.State,
+	)
+	ciLayout := config.MergeColumnConfigs(
+		config.ColumnConfig{Title: &ctx.Theme.Icons.CiIcon},
+		dLayout.Ci,
+		sLayout.Ci,
+	)
+	linesLayout := config.MergeColumnConfigs(
+		config.ColumnConfig{Title: &ctx.Theme.Icons.DiffIcon},
+		dLayout.Lines,
+		sLayout.Lines,
+	)
 
 	return []table.Column{
-		{
-			Title:  ctx.Theme.Icons.UpdatedAtIcon,
-			Width:  updatedAtLayout.Width,
-			Hidden: updatedAtLayout.Hidden,
-		},
-		{
-			Title:  ctx.Theme.Icons.StateIcon,
-			Hidden: stateLayout.Hidden,
-		},
-		{
-			Title:  ctx.Theme.Icons.RepoIcon,
-			Width:  repoLayout.Width,
-			Hidden: repoLayout.Hidden,
-		},
-		{
-			Title:  "Title",
-			Grow:   utils.BoolPtr(true),
-			Hidden: titleLayout.Hidden,
-		},
-		{
-			Title:  "Author",
-			Width:  authorLayout.Width,
-			Hidden: authorLayout.Hidden,
-		},
-		{
-			Title:  "Assignees",
-			Width:  assigneesLayout.Width,
-			Hidden: assigneesLayout.Hidden,
-		},
-		{
-			Title:  "Base",
-			Width:  baseLayout.Width,
-			Hidden: baseLayout.Hidden,
-		},
-		{
-			Title:  ctx.Theme.Icons.ReviewIcon,
-			Width:  utils.IntPtr(4),
-			Hidden: reviewStatusLayout.Hidden,
-		},
-		{
-			Title:  ctx.Theme.Icons.CiIcon,
-			Width:  &ctx.Styles.PrSection.CiCellWidth,
-			Grow:   new(bool),
-			Hidden: ciLayout.Hidden,
-		},
-		{
-			Title:  ctx.Theme.Icons.DiffIcon,
-			Width:  linesLayout.Width,
-			Hidden: linesLayout.Hidden,
-		},
+		fromColumnConfig(updatedAtLayout),
+		fromColumnConfig(stateLayout),
+		fromColumnConfig(repoLayout),
+		withColumnConfig(table.Column{Grow: utils.BoolPtr(true)}, titleLayout),
+		fromColumnConfig(authorLayout),
+		fromColumnConfig(assigneesLayout),
+		fromColumnConfig(baseLayout),
+		fromColumnConfig(reviewStatusLayout),
+		withColumnConfig(table.Column{Width: &ctx.Styles.PrSection.CiCellWidth, Grow: new(bool)}, ciLayout),
+		fromColumnConfig(linesLayout),
 	}
 }
 
